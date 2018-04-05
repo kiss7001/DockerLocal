@@ -2,9 +2,8 @@
 FROM        ubuntu:16.04
 
 # File Author / Maintainer
-MAINTAINER Angela Murrell
 
-# Update the repository and install nginx and php7.2
+# Update the repository and install nginx and php7.0
 RUN         apt-get update && \
             apt-get install -y nano && \
             apt-get install -y curl && \
@@ -20,27 +19,27 @@ RUN         apt-get update && \
 RUN 		LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php && \
 			apt-get update
 
-RUN         apt-get -y --no-install-recommends install php7.2 && \
-            apt-get -y --no-install-recommends install php7.2-fpm && \
+RUN         apt-get -y --no-install-recommends install php7.0 && \
+            apt-get -y --no-install-recommends install php7.0-fpm && \
             apt-get clean && \
             rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 # Install more stuff
 RUN	apt-get update && \
-	apt-get install -y php-curl && \
-	apt-get install -y php-mysql && \
+	apt-get install -y php7.0-curl && \
+	apt-get install -y php7.0-mysql && \
 	apt-get -y install php-pear && \
-	apt-get -y install php-dev && \
+	apt-get -y install php7.0-dev && \
 	apt-get -y install libcurl3-openssl-dev && \
 	apt-get -y install libyaml-dev && \
-	apt-get -y install php-zip && \
-	apt-get -y install php-mbstring && \
-	apt-get -y install php-memcached && \
-	apt-get -y install php-pgsql && \
-	apt-get -y install php-xml
+	apt-get -y install php7.0-zip && \
+	apt-get -y install php7.0-mbstring && \
+	apt-get -y install php7.0-memcached && \
+	apt-get -y install php7.0-pgsql && \
+	apt-get -y install php7.0-xml
 
-RUN pear config-set php_ini /etc/php/7.2/fpm/php.ini
-RUN pecl config-set php_ini /etc/php/7.2/fpm/php.ini
+RUN pear config-set php_ini /etc/php/7.0/fpm/php.ini
+RUN pecl config-set php_ini /etc/php/7.0/fpm/php.ini
 RUN printf "\n" | pecl install yaml-2.0.0
 
 # export var for nano to work in command line
@@ -68,15 +67,15 @@ RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN echo 'alias brc="source /root/.bashrc"' >> /root/.bashrc
 
 # Copy a configuration file from the current directory
-ADD php7-fpm.site.custom.conf /etc/php/7.2/fpm/pool.d
+ADD php7-fpm.site.custom.conf /etc/php/7.0/fpm/pool.d
 
 # daemon off for php also
-RUN sed -i "/;daemonize = .*/c\daemonize = no" /etc/php/7.2/fpm/php-fpm.conf && \
-    sed -i "/variables_order = .*/c\variables_order = \"EGPCS\"" /etc/php/7.2/fpm/php.ini && \
-    sed -i "/pid = .*/c\;pid = /run/php/php7.0-fpm.pid" /etc/php/7.2/fpm/php-fpm.conf
+RUN sed -i "/;daemonize = .*/c\daemonize = no" /etc/php/7.0/fpm/php-fpm.conf && \
+    sed -i "/variables_order = .*/c\variables_order = \"EGPCS\"" /etc/php/7.0/fpm/php.ini && \
+    sed -i "/pid = .*/c\;pid = /run/php/php7.0-fpm.pid" /etc/php/7.0/fpm/php-fpm.conf
 
 # Remove pool.d/www.conf
-RUN rm /etc/php/7.2/fpm/pool.d/www.conf
+RUN rm /etc/php/7.0/fpm/pool.d/www.conf
 
 # Adjust www-data
 RUN usermod -u 1000 www-data
@@ -89,5 +88,4 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Set the default command to execute when creating a new container
 # The following runs FPM and removes all its extraneous log output on top of what your app outputs to stdout
-CMD service php7.2-fpm start && service nginx start && /usr/sbin/php-fpm7.2 -F -O 2>&1 | sed -u 's,.*: \"\(.*\)$,\1,'| sed -u 's,"$,,' 1>&1
-# CMD service php7.2-fpm start && service nginx start 
+CMD service php7.0-fpm start && service nginx start && /usr/sbin/php-fpm7.0 -F -O 2>&1 | sed -u 's,.*: \"\(.*\)$,\1,'| sed -u 's,"$,,' 1>&1
